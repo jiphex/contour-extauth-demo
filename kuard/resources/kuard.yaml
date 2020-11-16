@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kuard-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuard
+  namespace: kuard-demo
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      containers:
+      - image: gcr.io/kuar-demo/kuard-amd64:1
+        name: kuard
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuard
+  namespace: kuard-demo
+spec:
+  selector:
+    app: kuard
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: basic
+spec:
+  virtualhost:
+    fqdn: localhost
+    tls:
+      secretName: kuard-tls
+    authorization:
+      extensionRef:
+        name: htpasswd
+        namespace: contour-auth-demo
+  routes:
+    - conditions:
+      - prefix: /
+      services:
+        - name: kuard
+          port: 80
+---
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  name: kuard-tls
+spec:
+  dnsNames:
+  - localhost
+  secretName: kuard-tls
+  issuerRef:
+    name: selfsigned

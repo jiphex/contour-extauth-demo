@@ -1,0 +1,21 @@
+bases:
+- upstream
+
+resources:
+  - namespace.yaml
+  - extension.yaml
+
+namespace: contour-auth-demo
+
+patchesJson6902:
+  - path: patches/set-cert-issuer.patch.yaml
+    target:
+      group: cert-manager.io
+      kind: Certificate
+      name: htpasswd
+      version: v1alpha3
+
+images:
+- name: contour-authserver:latest
+  newName: docker.io/projectcontour/contour-authserver
+  newTag: v2

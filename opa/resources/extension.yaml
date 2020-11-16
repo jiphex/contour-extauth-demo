@@ -1,0 +1,10 @@
+apiVersion: projectcontour.io/v1alpha1
+kind: ExtensionService
+metadata:
+  name: opa
+  namespace: echo
+spec:
+  protocol: h2c
+  services:
+  - name: opa
+    port: 9191

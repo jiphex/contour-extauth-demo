@@ -1,0 +1,23 @@
+resources:
+  - resources/namespace.yaml
+  - resources/serviceaccounts.yaml
+  - upstream/crds.yaml
+  - upstream/certgen.yaml
+  - upstream/rbac.yaml
+  - resources/xds-service.yaml
+  - resources/http-service.yaml
+  - resources/contour.yaml
+  - resources/envoy.yaml
+
+namespace: contour-system
+
+configMapGenerator:
+  - name: contour-config
+    files:
+      - config/contour.yaml
+
+images:
+  - name: docker.io/projectcontour/contour
+    newTag: v1.10.0
+  - name: docker.io/envoyproxy/envoy
+    newTag: v1.16.0

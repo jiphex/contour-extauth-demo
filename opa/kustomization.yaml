@@ -1,0 +1,26 @@
+resources:
+  - resources/echo-demo.yaml
+  - resources/expose.yaml
+  - resources/opa.yaml
+  - resources/extension.yaml
+
+namespace: echo
+
+secretGenerator:
+  - name: opa-policy
+    files:
+      - policy/policy.rego
+
+patchesJson6902:
+  - path: patches/set-cert-issuer.patch.yaml
+    target:
+      group: cert-manager.io
+      kind: Certificate
+      name: echo-tls
+      version: v1alpha3
+  - path: patches/set-cert-issuer.patch.yaml
+    target:
+      group: cert-manager.io
+      kind: Certificate
+      name: opa-tls
+      version: v1alpha3

@@ -1,0 +1,35 @@
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: echo-expose
+spec:
+  virtualhost:
+    fqdn: abc.localhost
+    tls:
+      secretName: echo-tls
+    authorization:
+      extensionRef:
+        name: opa
+        namespace: echo
+  routes:
+    - conditions:
+      - prefix: /
+      responseHeadersPolicy:
+        set:
+          - name: X-Jackpot
+            value: Foo
+      services:
+        - name: ingress-conformance-echo
+          port: 80
+---
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  name: echo-tls
+spec:
+  dnsNames:
+  - abc.localhost
+  secretName: echo-tls
+  issuerRef:
+    name: selfsigned

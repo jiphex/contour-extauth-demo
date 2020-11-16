@@ -1,0 +1,6 @@
+- op: add
+  path: /spec/issuerRef/kind
+  value: ClusterIssuer
+- op: add
+  path: /spec/issuerRef/name
+  value: fake-issuer

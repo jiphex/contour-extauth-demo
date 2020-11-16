@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opa
+spec:
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      containers:
+        - name: opa
+          # Note: openpolicyagent/opa:latest-envoy is created by retagging
+          # the latest released image of OPA-Envoy.
+          image: openpolicyagent/opa:latest-envoy
+          securityContext:
+            runAsUser: 1111
+          volumeMounts:
+          - readOnly: true
+            mountPath: /policy
+            name: opa-policy
+          - readOnly: true
+            mountPath: /tls
+            name: opa-cert
+          args:
+          - "run"
+          - "--server"
+          - "--addr=localhost:8181"
+          - "--diagnostic-addr=0.0.0.0:8282"
+          - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+          - "--set=plugins.envoy_ext_authz_grpc.query=data.envoy.authz.allow"
+          - "--set=decision_logs.console=true"
+          - "--tls-ca-cert-file=/tls/ca.crt"
+          - "--tls-cert-file=/tls/tls.crt"
+          - "--tls-private-key-file=/tls/tls.key"
+          - "--ignore=.*"
+          - "/policy/policy.rego"
+          ports:
+            - name: http
+              containerPort: 8181
+            - name: envoy-grpc
+              containerPort: 9191
+          livenessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health?plugins
+              scheme: HTTPS
+              port: 8282
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            limits:
+              memory: 128Mi
+              cpu: 10m
+      volumes:
+        - name: opa-policy
+          secret:
+            secretName: opa-policy
+        - name: opa-cert
+          secret:
+            secretName: opa-tls
+---
+apiVersion: cert-manager.io/v1alpha3
+kind: Certificate
+metadata:
+  name: opa-tls
+spec:
+  dnsNames:
+  - opa
+  secretName: opa-tls
+  issuerRef:
+    name: selfsigned
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opa
+spec:
+  selector:
+    app: opa
+  ports:
+  - name: http
+    port: 8181
+    targetPort: http
+  - name: envoygrpc
+    port: 9191
+    targetPort: envoy-grpc
+
