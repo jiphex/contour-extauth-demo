@@ -4,7 +4,7 @@ metadata:
   name: htpasswd
 spec:
   dnsNames:
-  - htpasswd
+  - htpasswd.localhost
   secretName: htpasswd
   issuerRef:
     name: selfsigned

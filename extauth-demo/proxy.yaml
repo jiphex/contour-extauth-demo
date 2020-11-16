@@ -1,0 +1,21 @@
+
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: basic-authz
+spec:
+  virtualhost:
+    fqdn: htpasswd.localhost
+    tls:
+      secretName: kuard-tls
+    authorization:
+      extensionRef:
+        name: htpasswd
+        namespace: contour-auth-demo
+  routes:
+    - conditions:
+      - prefix: /
+      services:
+        - name: kuard
+          port: 80

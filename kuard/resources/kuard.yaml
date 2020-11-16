@@ -42,13 +42,9 @@ metadata:
   name: basic
 spec:
   virtualhost:
-    fqdn: localhost
+    fqdn: basic.localhost
     tls:
       secretName: kuard-tls
-    authorization:
-      extensionRef:
-        name: htpasswd
-        namespace: contour-auth-demo
   routes:
     - conditions:
       - prefix: /
@@ -62,7 +58,7 @@ metadata:
   name: kuard-tls
 spec:
   dnsNames:
-  - localhost
+  - def.localhost
   secretName: kuard-tls
   issuerRef:
     name: selfsigned

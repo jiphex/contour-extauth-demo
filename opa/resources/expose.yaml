@@ -5,7 +5,7 @@ metadata:
   name: echo-expose
 spec:
   virtualhost:
-    fqdn: abc.localhost
+    fqdn: opa.localhost
     tls:
       secretName: echo-tls
     authorization:
@@ -29,7 +29,7 @@ metadata:
   name: echo-tls
 spec:
   dnsNames:
-  - abc.localhost
+  - opa.localhost
   secretName: echo-tls
   issuerRef:
     name: selfsigned
